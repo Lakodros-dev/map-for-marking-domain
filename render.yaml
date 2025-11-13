@@ -20,12 +20,5 @@ services:
   - type: web
     name: map-frontend
     env: static
-    region: oregon
-    plan: free
-    rootDir: frontend
-    buildCommand: echo "No build needed"
-    staticPublishPath: .
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+    buildCommand: echo "No build required"
+    staticPublishPath: frontend
