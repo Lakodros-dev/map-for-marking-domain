@@ -1,6 +1,14 @@
 // Telegram WebApp API
-const tg = window.Telegram.WebApp;
-tg.expand(); // To'liq ekran
+const tg = window.Telegram?.WebApp || {
+    expand: () => console.log('Telegram WebApp not available'),
+    sendData: (data) => console.log('Data to send:', data),
+    close: () => console.log('Close WebApp')
+};
+
+// Telegram ichida ochilgan bo'lsa, to'liq ekran
+if (window.Telegram?.WebApp) {
+    tg.expand();
+}
 
 // API URL ni aniqlash
 const API_URL = window.location.hostname === 'localhost'
@@ -109,15 +117,21 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
             };
 
             // Telegram WebApp orqali botga yuborish
-            tg.sendData(JSON.stringify(telegramData));
+            if (window.Telegram?.WebApp) {
+                tg.sendData(JSON.stringify(telegramData));
+                showNotification('Ma\'lumot botga yuborildi!', 'success');
 
-            showNotification('Hudud muvaffaqiyatli saqlandi!', 'success');
+                // Mini app ni yopish
+                setTimeout(() => {
+                    tg.close();
+                }, 1500);
+            } else {
+                // Oddiy brauzerda
+                showNotification('Hudud saqlandi! (Telegram bot uchun Telegram ichida oching)', 'success');
+                console.log('Telegram ga yuborilishi kerak:', telegramData);
+            }
+
             document.getElementById('modal').style.display = 'none';
-
-            // Mini app ni yopish (optional)
-            setTimeout(() => {
-                tg.close();
-            }, 1500);
         } else {
             showNotification('Xatolik yuz berdi!', 'error');
         }
