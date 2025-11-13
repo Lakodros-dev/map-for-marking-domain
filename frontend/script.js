@@ -1,7 +1,7 @@
 // API URL ni aniqlash
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : window.location.origin;
+    : 'https://map-backend.onrender.com'; // Backend URL ni kiriting
 
 // Xaritani yaratish (Toshkent markazi)
 const map = L.map('map').setView([41.2995, 69.2401], 12);

@@ -1,0 +1,12 @@
+{
+    "name": "map-area-selector",
+    "version": "1.0.0",
+    "description": "Interactive map for area selection",
+    "scripts": {
+        "start": "cd backend && npm install && npm start",
+        "install": "cd backend && npm install"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
