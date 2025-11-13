@@ -95,9 +95,23 @@ function showModal(bounds) {
 
 // Tasdiqlash tugmasi
 document.getElementById('confirmBtn').addEventListener('click', async function () {
-    if (!currentBounds) return;
+    console.log('Tasdiqlash bosildi');
+    console.log('currentBounds:', currentBounds);
+
+    if (!currentBounds) {
+        alert('Iltimos, avval xaritada hudud belgilang!');
+        return;
+    }
+
+    // Loading holatini ko'rsatish
+    const confirmBtn = document.getElementById('confirmBtn');
+    const originalText = confirmBtn.textContent;
+    confirmBtn.textContent = 'Yuborilmoqda...';
+    confirmBtn.disabled = true;
 
     try {
+        console.log('Backend ga yuborilmoqda:', API_URL);
+
         // Backend ga saqlash
         const response = await fetch(`${API_URL}/api/area`, {
             method: 'POST',
@@ -107,7 +121,9 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
             body: JSON.stringify({ bounds: currentBounds })
         });
 
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
 
         if (data.success) {
             // Telegram botga yuborish
@@ -118,6 +134,7 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
 
             // Telegram WebApp orqali botga yuborish
             if (window.Telegram?.WebApp) {
+                console.log('Telegram ga yuborilmoqda:', telegramData);
                 tg.sendData(JSON.stringify(telegramData));
                 showNotification('Ma\'lumot botga yuborildi!', 'success');
 
@@ -137,7 +154,11 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
         }
     } catch (error) {
         console.error('Xatolik:', error);
-        showNotification('Server bilan bog\'lanishda xatolik!', 'error');
+        showNotification('Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
+    } finally {
+        // Tugmani qayta faollashtirish
+        confirmBtn.textContent = originalText;
+        confirmBtn.disabled = false;
     }
 });
 
