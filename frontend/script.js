@@ -13,7 +13,9 @@ if (window.Telegram?.WebApp) {
 // API URL ni aniqlash
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : 'https://map-backend.onrender.com'; // Backend URL ni kiriting
+    : 'https://map-backend.onrender.com';
+
+console.log('Script yuklandi, API_URL:', API_URL);
 
 // Xaritani yaratish (Toshkent markazi)
 const map = L.map('map').setView([41.2995, 69.2401], 12);
@@ -73,6 +75,8 @@ map.on(L.Draw.Event.CREATED, function (e) {
         }
     };
 
+    console.log('Hudud belgilandi:', currentBounds);
+
     // Modal oynani ko'rsatish
     showModal(currentBounds);
 });
@@ -91,83 +95,8 @@ function showModal(bounds) {
   `;
 
     modal.style.display = 'block';
+    console.log('Modal oyna ochildi');
 }
-
-// Tasdiqlash tugmasi
-document.getElementById('confirmBtn').addEventListener('click', async function () {
-    console.log('Tasdiqlash bosildi');
-    console.log('currentBounds:', currentBounds);
-
-    if (!currentBounds) {
-        alert('Iltimos, avval xaritada hudud belgilang!');
-        return;
-    }
-
-    // Loading holatini ko'rsatish
-    const confirmBtn = document.getElementById('confirmBtn');
-    const originalText = confirmBtn.textContent;
-    confirmBtn.textContent = 'Yuborilmoqda...';
-    confirmBtn.disabled = true;
-
-    try {
-        console.log('Backend ga yuborilmoqda:', API_URL);
-
-        // Backend ga saqlash
-        const response = await fetch(`${API_URL}/api/area`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ bounds: currentBounds })
-        });
-
-        console.log('Response status:', response.status);
-        const data = await response.json();
-        console.log('Response data:', data);
-
-        if (data.success) {
-            // Telegram botga yuborish
-            const telegramData = {
-                bounds: currentBounds,
-                timestamp: new Date().toISOString()
-            };
-
-            // Telegram WebApp orqali botga yuborish
-            if (window.Telegram?.WebApp) {
-                console.log('Telegram ga yuborilmoqda:', telegramData);
-                tg.sendData(JSON.stringify(telegramData));
-                showNotification('Ma\'lumot botga yuborildi!', 'success');
-
-                // Mini app ni yopish
-                setTimeout(() => {
-                    tg.close();
-                }, 1500);
-            } else {
-                // Oddiy brauzerda
-                showNotification('Hudud saqlandi! (Telegram bot uchun Telegram ichida oching)', 'success');
-                console.log('Telegram ga yuborilishi kerak:', telegramData);
-            }
-
-            document.getElementById('modal').style.display = 'none';
-        } else {
-            showNotification('Xatolik yuz berdi!', 'error');
-        }
-    } catch (error) {
-        console.error('Xatolik:', error);
-        showNotification('Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
-    } finally {
-        // Tugmani qayta faollashtirish
-        confirmBtn.textContent = originalText;
-        confirmBtn.disabled = false;
-    }
-});
-
-// Bekor qilish tugmasi
-document.getElementById('cancelBtn').addEventListener('click', function () {
-    document.getElementById('modal').style.display = 'none';
-    drawnItems.clearLayers();
-    currentBounds = null;
-});
 
 // Bildirishnoma ko'rsatish
 function showNotification(message, type = 'success') {
@@ -181,6 +110,99 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Tasdiqlash funksiyasi
+async function handleConfirm() {
+    console.log('handleConfirm chaqirildi');
+    console.log('currentBounds:', currentBounds);
+
+    if (!currentBounds) {
+        alert('Iltimos, avval xaritada hudud belgilang!');
+        return;
+    }
+
+    const confirmBtn = document.getElementById('confirmBtn');
+    const originalText = confirmBtn.textContent;
+    confirmBtn.textContent = 'Yuborilmoqda...';
+    confirmBtn.disabled = true;
+
+    try {
+        console.log('Backend ga yuborilmoqda:', API_URL);
+
+        const response = await fetch(`${API_URL}/api/area`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ bounds: currentBounds })
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (data.success) {
+            const telegramData = {
+                bounds: currentBounds,
+                timestamp: new Date().toISOString()
+            };
+
+            if (window.Telegram?.WebApp) {
+                console.log('Telegram ga yuborilmoqda:', telegramData);
+                tg.sendData(JSON.stringify(telegramData));
+                showNotification('Ma\'lumot botga yuborildi!', 'success');
+
+                setTimeout(() => {
+                    tg.close();
+                }, 1500);
+            } else {
+                showNotification('Hudud saqlandi!', 'success');
+                console.log('Telegram ga yuborilishi kerak:', telegramData);
+            }
+
+            document.getElementById('modal').style.display = 'none';
+        } else {
+            showNotification('Xatolik yuz berdi!', 'error');
+        }
+    } catch (error) {
+        console.error('Xatolik:', error);
+        showNotification('Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
+    } finally {
+        confirmBtn.textContent = originalText;
+        confirmBtn.disabled = false;
+    }
+}
+
+// Bekor qilish funksiyasi
+function handleCancel() {
+    console.log('handleCancel chaqirildi');
+    document.getElementById('modal').style.display = 'none';
+    drawnItems.clearLayers();
+    currentBounds = null;
+}
+
+// Event listener qo'shish
+console.log('Event listenerlar qo\'shilmoqda...');
+
+const confirmBtn = document.getElementById('confirmBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+
+console.log('confirmBtn:', confirmBtn);
+console.log('cancelBtn:', cancelBtn);
+
+if (confirmBtn) {
+    confirmBtn.onclick = handleConfirm;
+    console.log('Tasdiqlash tugmasi ulandi');
+} else {
+    console.error('confirmBtn topilmadi!');
+}
+
+if (cancelBtn) {
+    cancelBtn.onclick = handleCancel;
+    console.log('Bekor qilish tugmasi ulandi');
+} else {
+    console.error('cancelBtn topilmadi!');
+}
+
 // Modal tashqarisiga bosilganda yopish
 window.onclick = function (event) {
     const modal = document.getElementById('modal');
@@ -188,3 +210,5 @@ window.onclick = function (event) {
         modal.style.display = 'none';
     }
 }
+
+console.log('Script to\'liq yuklandi');
