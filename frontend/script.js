@@ -1,3 +1,7 @@
+// Telegram WebApp API
+const tg = window.Telegram.WebApp;
+tg.expand(); // To'liq ekran
+
 // API URL ni aniqlash
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
@@ -86,6 +90,7 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
     if (!currentBounds) return;
 
     try {
+        // Backend ga saqlash
         const response = await fetch(`${API_URL}/api/area`, {
             method: 'POST',
             headers: {
@@ -97,8 +102,22 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
         const data = await response.json();
 
         if (data.success) {
+            // Telegram botga yuborish
+            const telegramData = {
+                bounds: currentBounds,
+                timestamp: new Date().toISOString()
+            };
+
+            // Telegram WebApp orqali botga yuborish
+            tg.sendData(JSON.stringify(telegramData));
+
             showNotification('Hudud muvaffaqiyatli saqlandi!', 'success');
             document.getElementById('modal').style.display = 'none';
+
+            // Mini app ni yopish (optional)
+            setTimeout(() => {
+                tg.close();
+            }, 1500);
         } else {
             showNotification('Xatolik yuz berdi!', 'error');
         }

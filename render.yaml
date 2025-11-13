@@ -1,5 +1,5 @@
 services:
-  # Backend API
+  # Backend API (frontend ham serve qiladi)
   - type: web
     name: map-backend
     env: node
@@ -10,9 +10,9 @@ services:
     startCommand: npm start
     envVars:
       - key: PORT
-        value: 3000
+        value: 10000
       - key: ALLOWED_ORIGINS
-        value: https://map-frontend.onrender.com,https://map-backend.onrender.com,https://your-bot-domain.com
+        value: https://map-backend.onrender.com,https://your-bot-domain.com
       - key: NODE_ENV
         value: production
 
@@ -20,5 +20,4 @@ services:
   - type: web
     name: map-frontend
     env: static
-    buildCommand: echo "No build required"
-    staticPublishPath: frontend
+    staticPublishPath: ./frontend

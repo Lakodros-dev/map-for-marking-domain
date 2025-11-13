@@ -1,9 +1,0 @@
-{
-    "name": "map-frontend",
-    "version": "1.0.0",
-    "description": "Frontend for map area selection",
-    "scripts": {
-        "dev": "python -m http.server 8000",
-        "start": "python -m http.server 8000"
-    }
-}
