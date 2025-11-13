@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -5,7 +6,23 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// CORS sozlamalari - faqat ruxsat berilgan domenlar
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
+    : ['http://localhost:3000'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Origin yo'q bo'lsa (masalan, Postman) yoki ruxsat berilgan bo'lsa
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('CORS tomonidan rad etildi'));
+        }
+    },
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Frontend fayllarni serve qilish

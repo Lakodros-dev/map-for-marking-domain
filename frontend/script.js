@@ -1,3 +1,8 @@
+// API URL ni aniqlash
+const API_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : window.location.origin;
+
 // Xaritani yaratish (Toshkent markazi)
 const map = L.map('map').setView([41.2995, 69.2401], 12);
 
@@ -81,7 +86,7 @@ document.getElementById('confirmBtn').addEventListener('click', async function (
     if (!currentBounds) return;
 
     try {
-        const response = await fetch('/api/area', {
+        const response = await fetch(`${API_URL}/api/area`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
