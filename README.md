@@ -10,15 +10,32 @@ Interaktiv xarita orqali hudud belgilash va koordinatalarni olish uchun veb-ilov
 - ✅ Koordinatalarni API orqali qaytarish
 - ✅ Render.com ga deploy qilish uchun tayyor
 
+## Loyiha tuzilishi
+
+```
+loyiha/
+├── backend/           # Backend (Express API)
+│   ├── server.js
+│   ├── package.json
+│   └── .gitignore
+├── frontend/          # Frontend (HTML, CSS, JS)
+│   ├── index.html
+│   ├── style.css
+│   └── script.js
+└── README.md
+```
+
 ## O'rnatish
 
 ```bash
+cd backend
 npm install
 ```
 
 ## Ishga tushirish
 
 ```bash
+cd backend
 npm start
 ```
 
@@ -60,9 +77,10 @@ Belgilangan hududni saqlash.
 1. GitHub ga push qiling
 2. Render.com da yangi Web Service yarating
 3. Repository ni ulang
-4. Build Command: `npm install`
-5. Start Command: `npm start`
-6. Deploy tugmasini bosing
+4. Root Directory: `backend`
+5. Build Command: `npm install`
+6. Start Command: `npm start`
+7. Deploy tugmasini bosing
 
 ## Bot bilan integratsiya
 
