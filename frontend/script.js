@@ -126,28 +126,30 @@ async function handleConfirm() {
     confirmBtn.disabled = true;
 
     try {
-        console.log('Backend ga yuborilmoqda:', API_URL);
+        // Bot token va chat ID
+        const BOT_TOKEN = '8488860764:AAFLfSKDwbvTJKzMw88WtSWahwk5Botp1Wc';
+        const ADMIN_CHAT_ID = '6181098940';
 
-        // Telegram User ID ni olish
-        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
-        console.log('Telegram User ID:', userId);
+        console.log('Bot API ga to\'g\'ridan-to\'g\'ri yuborilmoqda...');
 
-        const response = await fetch(`${API_URL}/api/area`, {
+        // Komanda yaratish
+        const command = `/set_area ${currentBounds.north.toFixed(6)} ${currentBounds.west.toFixed(6)} ${currentBounds.south.toFixed(6)} ${currentBounds.east.toFixed(6)}`;
+
+        // Avtomatik komanda yuborish
+        const commandResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                bounds: currentBounds,
-                userId: userId
+                chat_id: ADMIN_CHAT_ID,
+                text: command
             })
         });
 
-        console.log('Response status:', response.status);
-        const data = await response.json();
-        console.log('Response data:', data);
+        console.log('Command response:', commandResponse.status);
 
-        if (data.success) {
+        if (commandResponse.ok) {
             showNotification('✅ Hudud botga yuborildi!', 'success');
 
             // Modal yopish
@@ -157,14 +159,14 @@ async function handleConfirm() {
             if (window.Telegram?.WebApp) {
                 setTimeout(() => {
                     tg.close();
-                }, 1500);
+                }, 800);
             }
         } else {
             showNotification('❌ Xatolik yuz berdi!', 'error');
         }
     } catch (error) {
         console.error('Xatolik:', error);
-        showNotification('❌ Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
+        showNotification('❌ Bot bilan bog\'lanishda xatolik: ' + error.message, 'error');
     } finally {
         confirmBtn.textContent = originalText;
         confirmBtn.disabled = false;
