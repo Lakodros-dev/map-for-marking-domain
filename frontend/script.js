@@ -128,12 +128,19 @@ async function handleConfirm() {
     try {
         console.log('Backend ga yuborilmoqda:', API_URL);
 
+        // Telegram User ID ni olish
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
+        console.log('Telegram User ID:', userId);
+
         const response = await fetch(`${API_URL}/api/area`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ bounds: currentBounds })
+            body: JSON.stringify({
+                bounds: currentBounds,
+                userId: userId
+            })
         });
 
         console.log('Response status:', response.status);
@@ -141,31 +148,23 @@ async function handleConfirm() {
         console.log('Response data:', data);
 
         if (data.success) {
-            const telegramData = {
-                bounds: currentBounds,
-                timestamp: new Date().toISOString()
-            };
+            showNotification('✅ Hudud botga yuborildi!', 'success');
 
+            // Modal yopish
+            document.getElementById('modal').style.display = 'none';
+
+            // Telegram WebApp yopish
             if (window.Telegram?.WebApp) {
-                console.log('Telegram ga yuborilmoqda:', telegramData);
-                tg.sendData(JSON.stringify(telegramData));
-                showNotification('Ma\'lumot botga yuborildi!', 'success');
-
                 setTimeout(() => {
                     tg.close();
                 }, 1500);
-            } else {
-                showNotification('Hudud saqlandi!', 'success');
-                console.log('Telegram ga yuborilishi kerak:', telegramData);
             }
-
-            document.getElementById('modal').style.display = 'none';
         } else {
-            showNotification('Xatolik yuz berdi!', 'error');
+            showNotification('❌ Xatolik yuz berdi!', 'error');
         }
     } catch (error) {
         console.error('Xatolik:', error);
-        showNotification('Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
+        showNotification('❌ Server bilan bog\'lanishda xatolik: ' + error.message, 'error');
     } finally {
         confirmBtn.textContent = originalText;
         confirmBtn.disabled = false;
