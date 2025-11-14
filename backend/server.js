@@ -11,11 +11,16 @@ const PORT = process.env.PORT || 3001;
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID;
 
-// CORS sozlamalari - barcha domenlardan ruxsat (development uchun)
+// CORS sozlamalari - barcha domenlardan ruxsat
 app.use(cors({
     origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: false
 }));
+
+// Preflight requests uchun
+app.options('*', cors());
 
 app.use(express.json());
 
