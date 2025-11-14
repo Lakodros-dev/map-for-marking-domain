@@ -5,7 +5,7 @@ const path = require('path');
 const axios = require('axios');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Bot sozlamalari
 const BOT_TOKEN = process.env.BOT_TOKEN;
