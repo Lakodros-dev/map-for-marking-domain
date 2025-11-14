@@ -39,20 +39,15 @@ app.post('/api/area', async (req, res) => {
             // Komanda yaratish
             const command = `/set_area ${bounds.north.toFixed(6)} ${bounds.west.toFixed(6)} ${bounds.south.toFixed(6)} ${bounds.east.toFixed(6)}`;
 
-            const message = `🗺 Yangi ofis hududi belgilandi!\n\n` +
-                `📍 Shimol: ${bounds.north.toFixed(6)}\n` +
-                `📍 Janub: ${bounds.south.toFixed(6)}\n` +
-                `📍 Sharq: ${bounds.east.toFixed(6)}\n` +
-                `📍 G'arb: ${bounds.west.toFixed(6)}\n` +
-                `📍 Markaz: ${bounds.center.lat.toFixed(6)}, ${bounds.center.lng.toFixed(6)}\n\n` +
-                `✅ Quyidagi komandani yuboring:\n\n` +
-                `<code>${command}</code>`;
+            console.log('Komanda yaratildi:', command);
 
-            await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            // Avtomatik komanda yuborish
+            const commandResult = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                 chat_id: ADMIN_CHAT_ID,
-                text: message,
-                parse_mode: 'HTML'
+                text: command
             });
+
+            console.log('✅ Komanda botga yuborildi:', commandResult.data);
 
             // Markazni xaritada ko'rsatish
             await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendLocation`, {
@@ -61,10 +56,17 @@ app.post('/api/area', async (req, res) => {
                 longitude: bounds.center.lng
             });
 
-            console.log('✅ Botga yuborildi');
+            console.log('✅ Lokatsiya yuborildi');
         } catch (error) {
             console.error('❌ Botga yuborishda xato:', error.message);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+            }
         }
+    } else {
+        console.warn('⚠️ BOT_TOKEN yoki ADMIN_CHAT_ID topilmadi!');
+        console.log('BOT_TOKEN:', BOT_TOKEN ? 'Mavjud' : 'Yo\'q');
+        console.log('ADMIN_CHAT_ID:', ADMIN_CHAT_ID ? 'Mavjud' : 'Yo\'q');
     }
 
     res.json({

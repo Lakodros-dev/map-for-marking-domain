@@ -15,6 +15,9 @@ const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
     : 'https://map-backend.onrender.com';
 
+console.log('Hostname:', window.location.hostname);
+console.log('API_URL:', API_URL);
+
 console.log('Script yuklandi, API_URL:', API_URL);
 
 // Xaritani yaratish (Toshkent markazi)
@@ -126,30 +129,40 @@ async function handleConfirm() {
     confirmBtn.disabled = true;
 
     try {
-        // Bot token va chat ID
-        const BOT_TOKEN = '8488860764:AAFLfSKDwbvTJKzMw88WtSWahwk5Botp1Wc';
-        const ADMIN_CHAT_ID = '6181098940';
+        console.log('Backend ga yuborilmoqda:', API_URL);
 
-        console.log('Bot API ga to\'g\'ridan-to\'g\'ri yuborilmoqda...');
+        // Telegram User ID ni olish
+        const userId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || null;
+        console.log('Telegram User ID:', userId);
 
-        // Komanda yaratish
-        const command = `/set_area ${currentBounds.north.toFixed(6)} ${currentBounds.west.toFixed(6)} ${currentBounds.south.toFixed(6)} ${currentBounds.east.toFixed(6)}`;
+        const url = `${API_URL}/api/area`;
+        console.log('URL:', url);
 
-        // Avtomatik komanda yuborish
-        const commandResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        const payload = {
+            bounds: currentBounds,
+            userId: userId
+        };
+        console.log('Payload:', JSON.stringify(payload, null, 2));
+
+        // Backend ga yuborish
+        console.log('Fetch boshlanmoqda...');
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                chat_id: ADMIN_CHAT_ID,
-                text: command
-            })
+            body: JSON.stringify(payload)
         });
 
-        console.log('Command response:', commandResponse.status);
+        console.log('Fetch tugadi!');
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
 
-        if (commandResponse.ok) {
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (response.ok && data.success) {
+            console.log('Muvaffaqiyatli yuborildi!');
             showNotification('✅ Hudud botga yuborildi!', 'success');
 
             // Modal yopish
@@ -157,17 +170,23 @@ async function handleConfirm() {
 
             // Telegram WebApp yopish
             if (window.Telegram?.WebApp) {
+                console.log('WebApp yopilmoqda...');
                 setTimeout(() => {
                     tg.close();
                 }, 800);
             }
         } else {
-            showNotification('❌ Xatolik yuz berdi!', 'error');
+            console.error('Xatolik:', data);
+            showNotification('❌ Xatolik: ' + (data.error || data.message || 'Noma\'lum xato'), 'error');
         }
     } catch (error) {
-        console.error('Xatolik:', error);
-        showNotification('❌ Bot bilan bog\'lanishda xatolik: ' + error.message, 'error');
+        console.error('Catch blokida xatolik:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        showNotification('❌ Xatolik: ' + error.message, 'error');
     } finally {
+        console.log('Finally bloki');
         confirmBtn.textContent = originalText;
         confirmBtn.disabled = false;
     }
