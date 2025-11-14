@@ -13,7 +13,7 @@ if (window.Telegram?.WebApp) {
 // API URL ni aniqlash
 const API_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:3001'
-    : 'https://map-backend.onrender.com';
+    : 'https://map-for-marking-domain-1.onrender.com';
 
 console.log('Hostname:', window.location.hostname);
 console.log('API_URL:', API_URL);
