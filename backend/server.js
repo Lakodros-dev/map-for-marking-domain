@@ -37,6 +37,12 @@ app.post('/api/area', async (req, res) => {
 
     console.log('Yangi hudud belgilandi:', bounds);
     console.log('User ID:', userId);
+    console.log('Bounds details:');
+    console.log('  North (lat max):', bounds.north);
+    console.log('  South (lat min):', bounds.south);
+    console.log('  East (lng max):', bounds.east);
+    console.log('  West (lng min):', bounds.west);
+    console.log('  Center:', bounds.center);
 
     // Botga ma'lumot yuborish
     if (BOT_TOKEN && ADMIN_CHAT_ID) {
@@ -45,6 +51,7 @@ app.post('/api/area', async (req, res) => {
             const command = `/set_area ${bounds.north.toFixed(6)} ${bounds.west.toFixed(6)} ${bounds.south.toFixed(6)} ${bounds.east.toFixed(6)}`;
 
             console.log('Komanda yaratildi:', command);
+            console.log('Format: /set_area <north> <west> <south> <east>');
 
             // Avtomatik komanda yuborish
             const commandResult = await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
