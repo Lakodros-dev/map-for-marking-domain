@@ -44,6 +44,17 @@ app.post('/api/area', async (req, res) => {
     console.log('  West (lng min):', bounds.west);
     console.log('  Center:', bounds.center);
 
+    // Hudud o'lchamini hisoblash
+    const latDiff = Math.abs(bounds.north - bounds.south);
+    const lngDiff = Math.abs(bounds.east - bounds.west);
+    const latKm = latDiff * 111; // 1 degree lat ≈ 111 km
+    const lngKm = lngDiff * 111 * Math.cos(bounds.center.lat * Math.PI / 180);
+
+    console.log('Hudud o\'lchami:');
+    console.log('  Lat farqi:', latDiff.toFixed(6), '(~' + (latKm * 1000).toFixed(0) + ' metr)');
+    console.log('  Lng farqi:', lngDiff.toFixed(6), '(~' + (lngKm * 1000).toFixed(0) + ' metr)');
+    console.log('  Maydon:', (latKm * lngKm).toFixed(2), 'km²');
+
     // Botga ma'lumot yuborish
     if (BOT_TOKEN && ADMIN_CHAT_ID) {
         try {
