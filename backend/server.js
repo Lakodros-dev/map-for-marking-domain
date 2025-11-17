@@ -163,8 +163,24 @@ app.get('/api/settings', (req, res) => {
             console.log('📤 Settings yuborildi');
             res.json(settings);
         } else {
-            console.log('⚠️ Settings.json topilmadi');
-            res.status(404).json({ error: 'Settings not found' });
+            // Agar fayl yo'q bo'lsa, default qiymatlar bilan yaratish
+            console.log('⚠️ Settings.json topilmadi, default yaratilmoqda...');
+            const defaultSettings = {
+                office_location: { latitude: 41.2995, longitude: 69.2401, radius: 100 },
+                office_area: {
+                    point1: { lat: 41.2995, lng: 69.2401 },
+                    point2: { lat: 41.3005, lng: 69.2411 }
+                },
+                use_area_mode: false,
+                work_hours: { start: 9, end: 17 },
+                lunch_hours: { start: 12, end: 13 },
+                location_interval: { minutes: 30, grace_period: 5 }
+            };
+
+            // Faylga yozish
+            fs.writeFileSync(settingsPath, JSON.stringify(defaultSettings, null, 2), 'utf8');
+            console.log('✅ Default settings yaratildi');
+            res.json(defaultSettings);
         }
     } catch (error) {
         console.error('❌ Settings o\'qishda xato:', error);
