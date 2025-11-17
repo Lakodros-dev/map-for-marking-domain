@@ -152,6 +152,26 @@ app.post('/api/area', async (req, res) => {
     });
 });
 
+// Bot uchun sozlamalarni olish endpoint
+app.get('/api/settings', (req, res) => {
+    try {
+        const settingsPath = path.resolve(__dirname, '../../settings.json');
+
+        if (fs.existsSync(settingsPath)) {
+            const settingsData = fs.readFileSync(settingsPath, 'utf8');
+            const settings = JSON.parse(settingsData);
+            console.log('📤 Settings yuborildi');
+            res.json(settings);
+        } else {
+            console.log('⚠️ Settings.json topilmadi');
+            res.status(404).json({ error: 'Settings not found' });
+        }
+    } catch (error) {
+        console.error('❌ Settings o\'qishda xato:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Frontend uchun
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
