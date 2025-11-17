@@ -30,13 +30,17 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API endpoint - bot uchun
 app.post('/api/area', async (req, res) => {
+    console.log('🔵 /api/area endpointiga so\'rov keldi!');
+    console.log('Request body:', req.body);
+
     const { bounds, userId } = req.body;
 
     if (!bounds || !bounds.north || !bounds.south || !bounds.east || !bounds.west) {
+        console.log('❌ Noto\'g\'ri bounds ma\'lumoti!');
         return res.status(400).json({ error: 'Invalid bounds data' });
     }
 
-    console.log('Yangi hudud belgilandi:', bounds);
+    console.log('✅ Yangi hudud belgilandi:', bounds);
     console.log('User ID:', userId);
     console.log('Bounds details:');
     console.log('  North (lat max):', bounds.north);
@@ -96,6 +100,18 @@ app.post('/api/area', async (req, res) => {
         fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
         console.log('✅ Settings.json yangilandi!');
         console.log('Yangi hudud:', settings.office_area);
+
+        // Bot webhook ga ham yuborish (agar local bot ishlayotgan bo'lsa)
+        try {
+            const botWebhookUrl = 'http://localhost:5000/api/update_settings';
+            await axios.post(botWebhookUrl, {
+                office_area: settings.office_area,
+                use_area_mode: true
+            }, { timeout: 2000 });
+            console.log('✅ Bot webhook ga yuborildi!');
+        } catch (webhookError) {
+            console.log('ℹ️ Bot webhook ga yuborib bo\'lmadi (bot ishlamayotgan bo\'lishi mumkin)');
+        }
 
         // Admin'ga xabar yuborish
         if (BOT_TOKEN && ADMIN_CHAT_ID) {
