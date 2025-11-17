@@ -58,8 +58,10 @@ app.post('/api/area', async (req, res) => {
 
     // To'g'ridan-to'g'ri settings.json ga yozish
     try {
-        const settingsPath = path.join(__dirname, '../../settings.json');
+        // Loyiha ildizidagi settings.json yo'li
+        const settingsPath = path.resolve(__dirname, '../../settings.json');
         console.log('Settings.json yo\'li:', settingsPath);
+        console.log('Fayl mavjudmi?', fs.existsSync(settingsPath));
 
         // Mavjud sozlamalarni o'qish
         let settings = {};
@@ -77,7 +79,7 @@ app.post('/api/area', async (req, res) => {
             };
         }
 
-        // Yangi hudud qo'shish
+        // Yangi hudud qo'shish (to'rtburchak: point1=shimoliy-g'arbiy, point2=janubiy-sharqiy)
         settings.office_area = {
             point1: {
                 lat: bounds.north,
@@ -93,6 +95,7 @@ app.post('/api/area', async (req, res) => {
         // Faylga yozish
         fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
         console.log('✅ Settings.json yangilandi!');
+        console.log('Yangi hudud:', settings.office_area);
 
         // Admin'ga xabar yuborish
         if (BOT_TOKEN && ADMIN_CHAT_ID) {
