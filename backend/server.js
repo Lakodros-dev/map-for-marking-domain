@@ -188,6 +188,44 @@ app.get('/api/settings', (req, res) => {
     }
 });
 
+// Bot dan sozlamalarni yangilash
+app.post('/api/update_settings', async (req, res) => {
+    console.log('🔵 /api/update_settings endpointiga so\'rov keldi!');
+    console.log('Request body:', req.body);
+
+    try {
+        const settingsPath = path.resolve(__dirname, '../../settings.json');
+        const newSettings = req.body;
+
+        // Mavjud sozlamalarni o'qish
+        let settings = {};
+        if (fs.existsSync(settingsPath)) {
+            const settingsData = fs.readFileSync(settingsPath, 'utf8');
+            settings = JSON.parse(settingsData);
+        }
+
+        // Yangi sozlamalarni qo'shish/yangilash
+        Object.assign(settings, newSettings);
+
+        // Faylga yozish
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf8');
+        console.log('✅ Settings.json yangilandi!');
+        console.log('Yangi sozlamalar:', settings);
+
+        res.json({
+            success: true,
+            message: 'Settings yangilandi',
+            data: settings
+        });
+    } catch (error) {
+        console.error('❌ Settings yangilashda xato:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Internal server error'
+        });
+    }
+});
+
 // Frontend uchun
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
